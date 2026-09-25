@@ -147,8 +147,8 @@ The project follows a five‑sprint release plan (Sep 11 – Nov 19, 2026). Task
 
 git checkout -b feature/&lt;your-feature&gt;
 
-1. Commit changes:
+2. Commit changes:
 
 git commit -m "Add new feature"
 
-1. Push and open a pull request.
+3. Push and open a pull request.
