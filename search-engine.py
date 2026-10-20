@@ -84,7 +84,7 @@ def main():
     books = load_books()
     print("Best Price Book Aid - Search")
     while True:
-        print("\nSearch by: 1) class  2) Author  3) ISBN  4) Keyword  5) Price only  q) Quit")
+        print("\nSearch by: 1) Title  2) Author  3) ISBN  4) Keyword  5) Price only  q) Quit")
         choice = input("> ").strip().lower()
         if choice == "q":
             break
