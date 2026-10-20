@@ -1,0 +1,95 @@
+name: CI/CD
+
+# CI runs on every push and pull request to the GitFlow branches.
+# CD (deploy to Render) runs only on pushes to main, and only after CI passes.
+on:
+  push:
+    branches: [main, release, feature, hotfix]
+  pull_request:
+    branches: [main, release, feature]
+  workflow_dispatch:  # lets you run it by hand from the Actions tab
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: book-aid
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: book-aid/requirements*.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Run tests (pytest)
+        run: pytest -v
+
+  docker:
+    name: Docker build check
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t book-aid .
+
+      - name: Smoke test the container
+        run: |
+          docker run -d --name book-aid -p 8000:8000 book-aid
+          for i in $(seq 1 15); do
+            curl -fsS http://localhost:8000/health && exit 0
+            sleep 1
+          done
+          docker logs book-aid
+          exit 1
+
+  deploy:
+    name: Deploy to Render
+    needs: [test, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.RENDER_APP_URL }}
+    steps:
+      - name: Trigger Render deploy
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::RENDER_DEPLOY_HOOK_URL secret is not set. See book-aid/README.md (Deployment)."
+            exit 1
+          fi
+          curl -fsS -X POST "$DEPLOY_HOOK"
+
+      - name: Wait for the live site to be healthy
+        if: vars.RENDER_APP_URL != ''
+        run: |
+          # Render takes a few minutes to build and swap in the new version.
+          sleep 60
+          for i in $(seq 1 20); do
+            if curl -fsS "${{ vars.RENDER_APP_URL }}/health"; then
+              echo "Live site is healthy."
+              exit 0
+            fi
+            echo "Not up yet, retrying in 15s ($i/20)..."
+            sleep 15
+          done
+          echo "::error::Live site did not report healthy in time."
+          exit 1
