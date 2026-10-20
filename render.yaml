@@ -16,3 +16,19 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.7"
+
+  # Staging copy of the app. Tracks the feature branch so changes can be
+  # tested on a real server before they reach main.
+  - type: web
+    name: best-price-book-aid-staging
+    runtime: python
+    plan: free
+    rootDir: book-aid
+    branch: feature
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
