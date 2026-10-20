@@ -1,7 +1,9 @@
 name: CI/CD
 
 # CI runs on every push and pull request to the GitFlow branches.
-# CD (deploy to Render) runs only on pushes to main, and only after CI passes.
+# CD runs only after CI passes:
+#   - pushes to feature -> deploy to the STAGING server (for testing)
+#   - pushes to main    -> deploy to the PRODUCTION server (the real site)
 on:
   push:
     branches: [main, release, feature, hotfix]
@@ -13,13 +15,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: book-aid
-
 jobs:
   test:
     name: Lint and test
+    defaults:
+      run:
+        working-directory: book-aid
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +42,9 @@ jobs:
 
   docker:
     name: Docker build check
+    defaults:
+      run:
+        working-directory: book-aid
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +66,8 @@ jobs:
   deploy:
     name: Deploy to Render
     needs: [test, docker]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Deploys on pushes to main, or when run by hand from main via "Run workflow".
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -92,4 +97,39 @@ jobs:
             sleep 15
           done
           echo "::error::Live site did not report healthy in time."
+          exit 1
+
+  deploy-staging:
+    name: Deploy to staging
+    needs: [test, docker]
+    # Deploys on pushes to feature, or when run by hand from feature via "Run workflow".
+    if: github.ref == 'refs/heads/feature' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.RENDER_STAGING_APP_URL }}
+    steps:
+      - name: Trigger Render staging deploy
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::RENDER_STAGING_DEPLOY_HOOK_URL secret is not set. See book-aid/README.md (Staging)."
+            exit 1
+          fi
+          curl -fsS -X POST "$DEPLOY_HOOK"
+
+      - name: Wait for the staging site to be healthy
+        if: vars.RENDER_STAGING_APP_URL != ''
+        run: |
+          sleep 60
+          for i in $(seq 1 20); do
+            if curl -fsS "${{ vars.RENDER_STAGING_APP_URL }}/health"; then
+              echo "Staging site is healthy."
+              exit 0
+            fi
+            echo "Not up yet, retrying in 15s ($i/20)..."
+            sleep 15
+          done
+          echo "::error::Staging site did not report healthy in time."
           exit 1
