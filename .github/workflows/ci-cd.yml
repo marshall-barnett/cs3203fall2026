@@ -13,13 +13,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: book-aid
-
 jobs:
   test:
     name: Lint and test
+    defaults:
+      run:
+        working-directory: book-aid
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +40,9 @@ jobs:
 
   docker:
     name: Docker build check
+    defaults:
+      run:
+        working-directory: book-aid
     needs: test
     runs-on: ubuntu-latest
     steps:
