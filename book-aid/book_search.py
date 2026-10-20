@@ -10,7 +10,8 @@ def load_books(path=DATA_FILE):
     """Read listings from the CSV file into a list of dicts."""
     books = []
     with open(path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        for row in csv.DictReader(f, skipinitialspace=True):
+            row = {k.strip(): (v or "").strip() for k, v in row.items()}
             row["price"] = float(row["price"])
             books.append(row)
     return books

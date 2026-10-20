@@ -1,0 +1,18 @@
+# Render Blueprint for Best Price Book Aid.
+# In Render: New > Blueprint > pick this repo. It reads this file and creates the service.
+services:
+  - type: web
+    name: best-price-book-aid
+    runtime: python
+    plan: free
+    rootDir: book-aid
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    # Deploys are triggered by GitHub Actions only after tests pass,
+    # so Render's own push-to-deploy is turned off.
+    autoDeploy: false
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
