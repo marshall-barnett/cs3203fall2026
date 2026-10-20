@@ -1,0 +1,19 @@
+title,author,isbn,seller,price
+Clean Code,Robert C. Martin,9780132350884,BookBarn,29.99
+Clean Code,Robert C. Martin,9780132350884,PageTurner,34.50
+Clean Code,Robert C. Martin,9780132350884,UsedShelf,18.25
+The Pragmatic Programmer,Andrew Hunt,9780135957059,BookBarn,39.99
+The Pragmatic Programmer,Andrew Hunt,9780135957059,UsedShelf,24.00
+Python Crash Course,Eric Matthes,9781718502703,PageTurner,31.75
+Python Crash Course,Eric Matthes,9781718502703,BookBarn,27.40
+Automate the Boring Stuff with Python,Al Sweigart,9781593279929,UsedShelf,22.10
+Automate the Boring Stuff with Python,Al Sweigart,9781593279929,PageTurner,33.00
+Design Patterns,Erich Gamma,9780201633610,BookBarn,44.95
+Design Patterns,Erich Gamma,9780201633610,UsedShelf,29.00
+Introduction to Algorithms,Thomas H. Cormen,9780262046305,PageTurner,89.99
+Introduction to Algorithms,Thomas H. Cormen,9780262046305,UsedShelf,59.00
+Dune,Frank Herbert,9780441172719,BookBarn,9.99
+Dune,Frank Herbert,9780441172719,PageTurner,12.50
+The Hobbit,J.R.R. Tolkien,9780547928227,UsedShelf,7.25
+The Hobbit,J.R.R. Tolkien,9780547928227,BookBarn,10.99
+Mansoor class, Dauoda, 888888888, Page1, 11
