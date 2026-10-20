@@ -89,7 +89,7 @@ jobs:
           # Render takes a few minutes to build and swap in the new version.
           sleep 60
           for i in $(seq 1 20); do
-            if curl -fsS "${{ vars.RENDER_APP_URL }}/health"; then
+            if curl -fsS --max-time 30 "${{ vars.RENDER_APP_URL }}/health"; then
               echo "Live site is healthy."
               exit 0
             fi
@@ -124,7 +124,7 @@ jobs:
         run: |
           sleep 60
           for i in $(seq 1 20); do
-            if curl -fsS "${{ vars.RENDER_STAGING_APP_URL }}/health"; then
+            if curl -fsS --max-time 30 "${{ vars.RENDER_STAGING_APP_URL }}/health"; then
               echo "Staging site is healthy."
               exit 0
             fi
