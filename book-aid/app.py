@@ -1,4 +1,4 @@
-"""Best Price Book Aid - web app."""
+"""Best Price Book Cat - web app."""
 
 import os
 
