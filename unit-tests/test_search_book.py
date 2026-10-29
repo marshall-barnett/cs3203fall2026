@@ -3,6 +3,7 @@ import os
 import unittest
 
 # !! Note to reviewer, to run this all you need is this file along with books.csv in the same directory. The test will load the book titles from the CSV and run various tests on the search_book function.
+# books.csv can be found in cs3203fall2026 feature branch
 
 # books.csv is expected to live in the same directory as this test file
 BOOKS_CSV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "books.csv")
