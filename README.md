@@ -70,6 +70,8 @@ Branching follows a GitFlow structure:
 
 **You need:** [Git](https://git-scm.com/downloads) and [Python 3.12 or newer](https://www.python.org/downloads/). No API keys are required. Book listings load from `books.csv` in the repo, so the app runs offline.
 
+**Windows:** run these commands in PowerShell, and type `python` wherever this guide says `python3`. Everything else works as written (PowerShell understands `cp`).
+
 **1. Get the code**
 
 ```bash
