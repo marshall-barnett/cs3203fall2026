@@ -13,8 +13,7 @@ This project is developed by Group G for CS 3203 (Fall 2026) and follows a struc
 
 - Features
 - Architecture
-- Installation
-- Usage
+- Setup
 - Development Workflow
 - Sprint Plan
 - Contributing
@@ -67,35 +66,53 @@ Branching follows a GitFlow structure:
 - release — Preparing and merging features to complete sprints
 - hotfix — Emergency fixes
 
-**Installation**
+**Setup**
 
-Clone the repository:
+**You need:** [Git](https://git-scm.com/downloads) and [Python 3.12 or newer](https://www.python.org/downloads/). No API keys are required. Book listings load from `books.csv` in the repo, so the app runs offline.
 
-git clone <https://github.com/&lt;your-org&gt;/cs3203fall2026.git>
+**1. Get the code**
 
+```bash
+git clone https://github.com/marshall-barnett/cs3203fall2026.git
 cd cs3203fall2026
+git checkout feature        # active development happens here
+```
 
-Install dependencies:
+**2. Run the website** (from the repo root)
 
-npm install
+```bash
+cd book-aid
+pip install -r requirements.txt     # install Flask and gunicorn
+python app.py                       # start the dev server
+```
 
-Or for Python modules:
+Then open [http://localhost:5000/](http://localhost:5000/) (search page), [http://localhost:5000/api/search?q=dune](http://localhost:5000/api/search?q=dune) (JSON results) or [http://localhost:5000/health](http://localhost:5000/health) (health check).
 
-pip install -r requirements.txt
+**3. Check your changes before opening a PR** (in `book-aid/`)
 
-**Usage**
+```bash
+pip install -r requirements-dev.txt   # adds pytest and ruff
+ruff check .                          # code style
+pytest -v                             # app tests (every file in book-aid/tests/)
+docker build -t book-aid .            # optional: build the image CI deploys
+docker run -p 8000:8000 book-aid      # optional: preview it at http://localhost:8000
+```
 
-Search for a book:
+CI runs the same `ruff` and `pytest` checks on every push, and a failing check blocks the deploy.
 
-python search-engine/search.py --isbn 9780131103627
+**4. Run the unit tests** (from the repo root)
 
-Run comparison:
+```bash
+cd unit-tests
+cp ../books.csv .                   # test_search_book.py reads books.csv from this folder
+python3 -m unittest -v              # runs every test_*.py file in unit-tests/
+```
 
-python best-price-algorithm/compare.py --title "Operating Systems"
+**5. Try the command-line search** (optional, from the repo root)
 
-Launch the UI:
-
-npm run start
+```bash
+python3 search-engine.py            # search by title, author, ISBN, keyword or price
+```
 
 **Development Workflow**
 
